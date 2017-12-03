@@ -1,0 +1,425 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+	<meta charset="utf-8" />
+	<meta name="format-detection" content="telephone=no" />
+	<meta name="msapplication-tap-highlight" content="no" />
+	<meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width" />
+  
+	<!--<meta http-equiv="Content-Security-Policy" content="
+		default-src 'self' 'unsafe-inline' ws://192.168.1.123:3000 http://code.jquery.com https://code.jquery.com  https://ssl.gstatic.com gap: data: blob: filesystem: ; 
+	" />-->
+	
+	<link rel="stylesheet" href="http://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.css">
+
+	<script src="https://code.jquery.com/jquery-2.1.4.js" integrity="sha256-siFczlgw4jULnUICcdm9gjQPZkw/YPDqhQ9+nAOScE4=" crossorigin="anonymous"></script>
+	
+	<script>
+		$(document).on("mobileinit", function () {
+		   // $.mobile.defaultPageTransition = "flip";
+		});
+	</script>
+	
+	<script src="http://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.js"></script>
+
+	<link rel="stylesheet" type="text/css" href="css/index.css" />
+	<style type="text/css">
+		h2#lampotila {
+			display: inline-block;
+			vertical-align: top;
+		}
+		.ui-filter-inset {
+			margin-top: 0;
+		}
+	</style>
+	<title>Testiohjelma</title>
+</head>
+
+<body>	
+	
+	<!-- Vain dynaamiset header ja footer ominaisuudella data-position="fixed" pysyvät paikallaan vilkkumatta, kun sivua vaihdetaan -->
+	<div data-role="header" data-theme="a" data-position="fixed">
+		<h1></h1>
+		<!--<a href="#popupMenu" data-rel="popup" data-transition="flip" class="ui-btn ui-btn-inline  ui-corner-all ui-icon-bars ui-btn-icon-notext">Menu</a>-->
+		<div data-role="navbar" id="navi">
+			<ul>
+				<li><a href="#etusivu" class="ui-btn ui-icon-navigation ui-btn-icon-top  ui-mini">Junareitit</a></li>
+				<li><a href="#saaSivu"  class="ui-btn ui-icon-cloud ui-btn-icon-top ui-mini">Sää</a></li>
+				<li><a href="#etaisyysSivu" class="ui-btn ui-icon-location ui-btn-icon-top ui-mini">Etäisyys</a></li>
+				<li><a href="#ruokaSivu" class="ui-btn ui-icon-bullets ui-btn-icon-top ui-mini">Ruoka</a></li>
+			</ul>
+		</div>
+	</div>
+	
+	<div data-role="footer" data-theme="b" data-position="fixed">
+		<h4>Veikko Soosaar</h4>
+	</div>
+		 
+	<div data-role="page" id="etusivu" data-title="Junareitit">
+	
+		<div role="main" class="ui-content ui-body-a">
+			<h3>Lähtöasema: <span id="lahtoAsemaFinal"></span></h3>
+			<form class="ui-filterable">
+				<input id="inset-autocomplete-input" data-type="search" placeholder="Hae lähtöasema...">
+			</form>
+			<ul class="asemaLista ekaAsemaLista" data-role="listview" data-inset="true" data-filter="true" data-filter-reveal="true" data-input="#inset-autocomplete-input">
+			</ul>
+
+			<h3>Kohdeasema: <span id="kohdeAsemaFinal"></span></h3>
+			<form class="ui-filterable">
+				<input id="inset-autocomplete-input2" data-type="search" placeholder="Hae kohdeasema...">
+			</form>
+			<ul class="asemaLista tokaAsemaLista" data-role="listview" data-inset="true" data-filter="true" data-filter-reveal="true" data-input="#inset-autocomplete-input2">
+			</ul>
+
+			<input type="button" id="junatHelsinkiin" value="Hae junat">
+			<table id="junaTiedot"></table>
+		</div> <!-- /content -->
+	
+	</div> <!-- /page -->
+	
+	<div data-role="page" id="saaSivu" data-title="Sää">
+  
+		<div role="main" class="ui-content ui-body-a">
+			<img id="saaKuva" src="">
+			<h2 id="lampotila"></h2>
+			<p id="pilviKuvaus"></p>
+			<p id="tuulenNopeus"></p>
+			<p id="pilvisyys"></p>
+		</div> <!-- /content -->
+
+	</div> <!-- /page -->
+	
+	<div data-role="page" id="etaisyysSivu" data-title="Etäisyys">
+  
+		<div role="main" class="ui-content ui-body-a">
+			<div class="ui-field-contain">
+				<label for="mista">Mistä:</label>
+				<input type="text" name="mista" id="mista" value="">
+			</div>
+			<div class="ui-field-contain">
+				<label for="minne">Minne:</label>
+				<input type="text" name="minne" id="minne" value="">
+			</div>	
+			<input type="button" id="hae" value="Hae">
+			
+			<p id="etaisyysTiedot"></p>
+		</div> <!-- /content -->
+
+	</div> <!-- /page -->
+	
+	<div data-role="page" id="ruokaSivu" data-title="Ruoka">
+
+  
+		<div role="main" class="ui-content ui-body-a">
+			<p id="ruokalista"></p>
+		</div> <!-- /content -->
+
+	</div> <!-- /page -->
+		
+
+<!--
+	<script type="text/javascript" src="cordova.js"></script>
+	<script type="text/javascript" src="js/index.js"></script>
+-->
+	<script type="text/javascript">
+
+		$(document).one("pagebeforecreate", function () {
+	
+			$( "[data-role='header']" ).enhanceWithin().toolbar(); // Koska on sisältöä
+			$( "[data-role='footer']" ).toolbar();  // WP ei osaa asettaa oikein
+		
+			$("#popupMenu").enhanceWithin().popup(); // Koska on sisältöä	
+		});
+		
+		
+		$(document).on("pagecreate", function() {
+
+			$(document).on("pagecontainershow", function(){
+				$(".ui-content").height(getRealContentHeight());
+			})
+
+			$(window).on("resize orientationchange", function(){
+				$(".ui-content").height(getRealContentHeight());
+			})
+			
+			function getRealContentHeight() {
+				var activePage = $.mobile.pageContainer.pagecontainer("getActivePage"),
+					screen = $.mobile.getScreenHeight(),
+					header = $(".ui-header").hasClass("ui-header-fixed") ? $(".ui-header").outerHeight() - 1 : $(".ui-header").outerHeight(),
+					footer = $(".ui-footer").hasClass("ui-footer-fixed") ? $(".ui-footer").outerHeight() - 1 : $(".ui-footer").outerHeight(),
+					contentMargins = $(".ui-content", activePage).outerHeight() - $(".ui-content", activePage).height();
+				
+				var contentHeight = screen - header - footer - contentMargins;	
+		
+				return contentHeight;
+			}
+			
+			$( document ).on("pagecontainerchange", function() {
+				navi();
+			});
+			
+			$("div.ui-page").on("swipeleft", function(event){
+				if(event.handled !== true) {
+					var nextpage = $(this).next("div[data-role='page']");;
+					
+					if (nextpage.length == 0) {
+						nextpage = $("div[data-role='page']:first");
+					}
+			
+					$.mobile.pageContainer.pagecontainer ("change", nextpage);
+					event.handled = true;
+					navi();
+				}
+				return false;
+			});
+			
+			$("div.ui-page").on("swiperight", function(event){
+				if(event.handled !== true) {
+					var prevpage = $(this).prev("div[data-role='page']");
+
+					if (prevpage.length == 0) {
+						prevpage = $("div[data-role='page']:last");
+					}
+					
+					$.mobile.pageContainer.pagecontainer ("change", prevpage);
+					event.handled = true;
+					navi();
+				}
+				return false;
+			});
+			
+			function navi() {
+				// attribuutti data-title
+				var current = $( ".ui-page-active" ).jqmData( "title" );
+				
+				$( "[data-role='header'] h1" ).text( current );
+				
+				$( "[data-role='navbar'] a.ui-btn-active" ).removeClass( "ui-btn-active" );
+				
+				$( "[data-role='navbar'] a" ).each(function() {
+					if ( $( this ).text() === current ) {
+						$( this ).addClass( "ui-btn-active" );
+					}
+				});
+			}
+		});  
+		
+		$(document).on("pagecreate", "#etusivu", function() {
+			console.log("Etusivu luotu");
+			console.log("Haetaan asemia");
+			haeAsemat();
+			lisaaEkaAsema();
+			lisaaTokaAsema();
+			// Haetaan junien tiedot painikkeesta
+			$("#junatHelsinkiin").on("click", function() {
+				console.log("Haetaan Helsinkiin meneviä junia!");
+				var junaMista = $("#ekaAsema").val();
+				var junaMinne = $("#tokaAsema").val();
+				var junaMistaNimi = $("#ekaAsema").attr("name");
+				var junaMinneNimi = $("#tokaAsema").attr("name");;
+				haeJunatHelsinkiin(junaMista, junaMinne, junaMistaNimi, junaMinneNimi);
+			});
+
+			
+		});
+
+
+		$(document).on("pagecreate", "#saaSivu", function() {
+			console.log("Sääsivu luotu");
+			// Haetaan säätiedot
+			haeSaa();
+		});
+		
+		$(document).on("pagecreate", "#ruokaSivu", function() {
+			console.log("Ruokasivu luotu");
+			// Haetaan säätiedot
+			haeRuokalista();
+		});
+		
+		$(document).on("pagecreate", "#etaisyysSivu", function() {
+			console.log("Etäisyyssivu luotu");
+			$("#hae").on("click", function() {
+				var mista = $("#mista").val();
+				var minne = $("#minne").val();
+				haeEtaisyys(mista, minne);
+			});
+		});
+		
+		function lisaaEkaAsema() {
+			$(".ekaAsemaLista").on("click", "a", function(){
+				var valittuAsema = $(this).text();
+				var valittuAsemaLyhyt = $("input[name='"+ valittuAsema +"']").val();
+				console.log(valittuAsema + " ja " + valittuAsemaLyhyt);
+				$("#lahtoAsemaFinal").html(valittuAsema + "<input id='ekaAsema' type='hidden' name='"+ valittuAsema +"' value='"+ valittuAsemaLyhyt +"'>");
+				$(".ui-input-clear").click();
+			});
+		}
+
+		function lisaaTokaAsema() {
+			$(".tokaAsemaLista").on("click", "a", function(){
+				var valittuAsema = $(this).text();
+				var valittuAsemaLyhyt = $("input[name='"+ valittuAsema +"']").val();
+				console.log(valittuAsema + " ja " + valittuAsemaLyhyt);
+				$("#kohdeAsemaFinal").html(valittuAsema + "<input id='tokaAsema' type='hidden'  name='"+ valittuAsema +"' value='"+ valittuAsemaLyhyt +"'>");
+				$(".ui-input-clear").click();
+			});
+		}
+
+		// Haetaan asemat listaan
+		function haeAsemat() {
+			var stationArea = {
+				latMin : 60.093717,
+				latMax : 60.493192,
+				longMin: 24.283905,
+				longMax: 25.479355,
+        	}
+
+			var asemaFilterLista = "";
+
+
+			$.ajax({
+				url: "https://rata.digitraffic.fi/api/v1/metadata/stations",
+				dataType: "json",
+				timeout: 6000
+			})
+			.done(function(data){
+				$.each(data, function(a, b){
+					if(b.passengerTraffic === true && b.longitude < stationArea.longMax && b.longitude > stationArea.longMin && b.latitude < stationArea.latMax && b.latitude > stationArea.latMin) {
+						asemaFilterLista += "<li class='ui-screen-hidden'><a href='#'>" + b.stationName + "<input type='hidden' name='" + b.stationName + "' value='"+ b.stationShortCode +"'></a></li>"
+					}
+				});
+				$(".asemaLista").html(asemaFilterLista);
+				
+			})
+			.fail(function() {
+				console.log("Virhe junien haussa");
+			})
+		};
+
+		// a = mistä, b = minne
+		function haeJunatHelsinkiin(a, b, c, d) {
+			$.ajax({
+				url: "https://rata.digitraffic.fi/api/v1/live-trains/station/" + a + "/" + b + "?limit=15",
+				// Alternative:
+				//url: "https://rata.digitraffic.fi/api/v1/live-trains/station/KAN?minutes_before_departure=60&minutes_after_departure=5&minutes_before_arrival=60&minutes_after_arrival=5",
+				datatype: "json",
+				timeout: 6000
+			})
+			.done(function(data){
+				var junaLista = "";
+				var mistaAsema = a;
+
+				$.each(data, function(a,b){
+					var junaNimi = b.commuterLineID;
+
+					function junaTiedot(lahtoAsema){
+						// Halutaan (JUNANIMI) + ASEMANIMI + LÄHTÖAIKA + (ACTUAL TIME) + (PERUTTU)
+						var lahtoAsemanNimi = lahtoAsema;
+						var junaListaFinal = "";
+
+						$.each(b.timeTableRows, function(j, k) {
+							if (k.stationShortCode === lahtoAsemanNimi && k.type === "DEPARTURE") {
+
+								var lahtoAsemaFinal = c;
+								var kohdeAsemaFinaali = d;
+
+								if (kohdeAsemaFinaali === "Helsinki asema") {
+									kohdeAsemaFinaali = "Helsinki";
+								}
+
+								var lahtoAikaFirst = new Date(k.scheduledTime);
+								var lahtoAikaFinal = lahtoAikaFirst.getHours() + ":" + lisaaNolla(lahtoAikaFirst.getMinutes());
+								var junaListaFinalAloitus = junaNimi + " " + lahtoAsemaFinal + " " + lahtoAikaFinal + " " + kohdeAsemaFinaali;
+								
+								junaListaFinal += junaListaFinalAloitus + "<br>";
+								return junaListaFinal;
+							} else {
+								return "NOT FOUND";
+							}
+							//junaListaFinal = junaListaFinalAloitus;
+						});
+						return junaListaFinal;
+					}
+					junaLista += junaTiedot(mistaAsema);
+
+
+				});
+				$("#junaTiedot").html(junaLista);
+			})
+			.fail(function() {
+				console.log("Virhe junatietojen haussa");
+			})
+		};
+
+		function haeSaa() {
+			$.ajax({
+				url: "http://api.openweathermap.org/data/2.5/weather?lang=fi&q=helsinki&units=metric&APPID=ee06d7b1b40bec8e184632af844fe8b0",
+				dataType: "json",
+				timeout: 6000
+			})
+			.done(function(data){
+				console.log("Haetaan säätiedot");
+				$("#saaKuva").attr("src", "http://api.openweathermap.org/img/w/" + data.weather[0].icon);
+				$("#lampotila").html(data.main.temp + "&#8451;");
+				$("#pilviKuvaus").html(data.weather[0].description);
+				$("#tuulenNopeus").html("Tuuli " + data.wind.speed + " m/s");
+				$("#pilvisyys").html("Pilvisyys " + data.clouds.all + "%");
+			})
+			.fail(function() {
+				console.log("Virhe säätietojen haussa");
+			})
+		};
+		
+		function haeRuokalista() {
+			$.ajax({
+				url: "http://www.amica.fi/modules/json/json/Index?costNumber=0083&language=fi",
+				dataType: "json",
+				timeout: 6000
+			})
+			.done(function(data){
+				console.log("Haetaan ruokalista");
+				var ruokaList = "";
+				$.each(data.MenusForDays[0].SetMenus, function(a, b){
+					$.each(b.Components, function(k,v) {
+						console.log("Haetaan ruoka " + v)
+						ruokaList += v + "<br>";
+					});
+				});
+				console.log("Ruokalista: " + ruokaList)
+				$("#ruokalista").html(ruokaList);
+			})
+			.fail(function() {
+				console.log("Virhe ruokalistan haussa");
+			})
+		};
+		
+		function haeEtaisyys(mista, minne) {
+			$.ajax({
+				url: "https://maps.googleapis.com/maps/api/distancematrix/json?units=metrics&origins=" + mista + "&destinations=" + minne + "&key=AIzaSyBaKqlZCLWMh-B73YjcEIxB87xsGjmuuNA",
+				dataType: "json",
+				timeout: 6000
+			})
+			.done(function(data) {
+				console.log("Haetaan etäisyystietoja");
+				$("#etaisyysTiedot").html("Matkan pituus on " + data.rows[0].elements[0].distance.text + " ja matka-aika on " + data.rows[0].elements[0].duration.text)
+			})
+			.fail(function(data) {
+				console.log("Virhe etäisystietojen haussa");
+			})
+		};
+
+		// Lisätään nolla minuutteihin, jos luku alle 10
+		function lisaaNolla(i) {
+			if (i < 10) {
+				i = "0" + i;
+			}
+			return i;
+		}
+		
+	</script>
+
+</body>
+
+</html>
