@@ -93,7 +93,7 @@
 			<ul class="asemaLista tokaAsemaLista" data-role="listview" data-inset="true" data-filter="true" data-filter-reveal="true" data-input="#inset-autocomplete-input2">
 			</ul>
 
-			<input type="button" id="junatHelsinkiin" value="Hae junat">
+			<input type="button" id="junatHaku" value="Hae junat">
 			<table id="junaTiedot"></table>
 
 			<ul id=#favoritesList data-role="listview" data-inset="true">
@@ -253,7 +253,7 @@
 			lisaaEkaAsema();
 			lisaaTokaAsema();
 			// Haetaan junien tiedot painikkeesta
-			$("#junatHelsinkiin").on("click", function() {
+			$("#junatHaku").on("click", function() {
 				console.log("Haetaan meneviä junia!");
 				var junaMista = $("#ekaAsema").val();
 				var junaMinne = $("#tokaAsema").val();
@@ -274,23 +274,19 @@
 		});
 
 		function lisaaSuosikiksi(i) {
-			$("#"+ i).on("click", function() {
-				console.log("Tallennetaan reitti localstorageen: " + i);
-				var junaMista = $("#ekaAsema").val();
-				var junaMinne = $("#tokaAsema").val();
-				var junaMistaNimi = $("#ekaAsema").attr("name");
-				var junaMinneNimi = $("#tokaAsema").attr("name");
-				localStorage.setItem("asemaMista"+ i, junaMista); 
-				localStorage.setItem("asemaMistaNimi" + i, junaMistaNimi);
-				localStorage.setItem("asemaMinne" + i, junaMinne);
-				localStorage.setItem("asemaMinneNimi" + i, junaMinneNimi);
-			});
+			console.log("Tallennetaan reitti localstorageen: " + i);
+			var junaMista = $("#ekaAsema").val();
+			var junaMinne = $("#tokaAsema").val();
+			var junaMistaNimi = $("#ekaAsema").attr("name");
+			var junaMinneNimi = $("#tokaAsema").attr("name");
+			localStorage.setItem("asemaMista"+ i, junaMista); 
+			localStorage.setItem("asemaMistaNimi" + i, junaMistaNimi);
+			localStorage.setItem("asemaMinne" + i, junaMinne);
+			localStorage.setItem("asemaMinneNimi" + i, junaMinneNimi);
 		}
 
 		function haeSuosikki(p) {
-			$("#" + p).on("click", function() {
-				console.log("aha " + p);
-			});
+			console.log("aha " + p);
 		}
 		
 
