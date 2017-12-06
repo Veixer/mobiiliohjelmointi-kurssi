@@ -113,6 +113,7 @@
 			</ul>
 
 			<input type="button" id="poistaStorage" value="Poista suosikit">
+			<input type="button" id="lataaSivuUudelleen" value="Lataa sivu uudelleen">
 		</div> <!-- /content -->
 	
 	</div> <!-- /page -->
@@ -248,7 +249,13 @@
 
 		$(document).on("pagecreate", "#etusivu", function() {
 			console.log("Etusivu luotu");
+			console.log("Täytetään suosikit");
 			console.log("Haetaan asemia");
+			
+			// Tarkastetaan localstorage ja täytetään jos löytyy jotain
+
+			taytaSuosikit();
+			
 			haeAsemat();
 			lisaaEkaAsema();
 			lisaaTokaAsema();
@@ -271,23 +278,18 @@
 				var suosikkiLisaa = $(this).attr("id");
 				lisaaSuosikiksi(suosikkiLisaa);
 			});
+
+			// Tyhjennetään localstorage napin painalluksesta
+			$("#poistaStorage").on("click", function() {
+				localStorage.clear();
+				location = location;
+			});
+
+			$("#lataaSivuUudelleen").on("click", function() {
+				location = location;
+			});
 		});
 
-		function lisaaSuosikiksi(i) {
-			console.log("Tallennetaan reitti localstorageen: " + i);
-			var junaMista = $("#ekaAsema").val();
-			var junaMinne = $("#tokaAsema").val();
-			var junaMistaNimi = $("#ekaAsema").attr("name");
-			var junaMinneNimi = $("#tokaAsema").attr("name");
-			localStorage.setItem("asemaMista"+ i, junaMista); 
-			localStorage.setItem("asemaMistaNimi" + i, junaMistaNimi);
-			localStorage.setItem("asemaMinne" + i, junaMinne);
-			localStorage.setItem("asemaMinneNimi" + i, junaMinneNimi);
-		}
-
-		function haeSuosikki(p) {
-			console.log("aha " + p);
-		}
 		
 
 
@@ -331,6 +333,71 @@
 				$(".ui-input-clear").click();
 			});
 		}
+
+		// Lisätään reitti suosikiksi valittuun kohtaan (1, 2 tai 3)
+		function lisaaSuosikiksi(i) {
+			console.log("Tallennetaan reitti localstorageen: " + i);
+			var junaMista = $("#ekaAsema").val(); // esim. "HKI"
+			var junaMinne = $("#tokaAsema").val();
+			var junaMistaNimi = $("#ekaAsema").attr("name"); // esim. "Helsinki asema"
+			var junaMinneNimi = $("#tokaAsema").attr("name");
+			
+			// Tarkistetaan että ei ole undefined aseman kohdalla, jos moelmmat asemat löytyvät (lähtö ja kohde) niin sitten tallennetaan localstorageen ja pistetään tieto näytille
+			if ( typeof junaMistaNimi == 'undefined' || typeof junaMinneNimi == 'undefined') {
+				$("#" + i.substring(0,7)).html("Tarkista valitsemasi asemat.");
+			} else {
+				$("#" + i.substring(0,7)).html(i.substring(6,7) + ". " + junaMistaNimi + " - " + junaMinneNimi);
+
+				localStorage.setItem("asemaMista"+ i, junaMista); 
+				localStorage.setItem("asemaMistaNimi" + i, junaMistaNimi);
+				localStorage.setItem("asemaMinne" + i, junaMinne);
+				localStorage.setItem("asemaMinneNimi" + i, junaMinneNimi);
+			}
+		}
+
+		// Haetaan suosikista asemat käyttöön
+		function haeSuosikki(p) {
+			console.log("Valitaan suosikkireitti käyttöön");
+			var junaMista = localStorage.getItem("asemaMista"+ p + "lisaa");
+			var junaMinne = localStorage.getItem("asemaMinne"+ p + "lisaa");
+			var junaMistaNimi = localStorage.getItem("asemaMistaNimi"+ p + "lisaa");
+			var junaMinneNimi = localStorage.getItem("asemaMinneNimi"+ p + "lisaa");
+
+			if (junaMista != null && junaMinne != null && junaMistaNimi != null && junaMinneNimi != null){
+				$("#lahtoAsemaFinal").html(junaMistaNimi + "<input id='ekaAsema' type='hidden' name='"+ junaMistaNimi +"' value='"+ junaMista +"'>");
+				$("#kohdeAsemaFinal").html(junaMinneNimi + "<input id='tokaAsema' type='hidden'  name='"+ junaMinneNimi +"' value='"+ junaMinne +"'>");
+			}
+			
+		}
+		
+		function taytaSuosikit() {
+			var localAsema1 = "1. " + localStorage.getItem("asemaMistaNimireitti1lisaa") + " - " + localStorage.getItem("asemaMinneNimireitti1lisaa");
+			var localAsema2 = "2. " + localStorage.getItem("asemaMistaNimireitti2lisaa") + " - " + localStorage.getItem("asemaMinneNimireitti2lisaa");
+			var localAsema3 = "3. " + localStorage.getItem("asemaMistaNimireitti3lisaa") + " - " + localStorage.getItem("asemaMinneNimireitti3lisaa");
+			var local1 = localStorage.getItem("asemaMistaNimireitti1lisaa");
+			var local2 = localStorage.getItem("asemaMistaNimireitti2lisaa");
+			var local3 = localStorage.getItem("asemaMistaNimireitti3lisaa");
+
+			if (localStorage.length > 0) {
+				if (local1 != "undefined" && local1 != null) {
+					$("#reitti1").html(localAsema1);
+				} else {
+					$("#reitti1").html("1. -");
+				}
+
+				if (local2 != "undefined" && local2 != null) {
+					$("#reitti2").html(localAsema2);
+				} else {
+					$("#reitti2").html("2. -");
+				}
+
+				if (local3 != "undefined" && local3 != null) {
+					$("#reitti3").html(localAsema3);
+				} else {
+					$("#reitti3").html("3. -");
+				}
+			}	
+		};
 
 		// Haetaan asemat listaan
 		function haeAsemat() {
