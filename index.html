@@ -32,6 +32,26 @@
 		.ui-filter-inset {
 			margin-top: 0;
 		}
+		#junaTiedot {
+			border-collapse: collapse;
+			width: 100%;
+		}
+		#junaTiedot td, #junaTiedot th {
+			border: 1px solid #ddd;
+			padding: 8px;
+		}
+		#junaTiedot tr:nth-child(even){
+			background-color: #f2f2f2;
+		}
+		#junaTiedot th {
+			padding-top: 12px;
+			padding-bottom: 12px;
+			text-align: left;
+			background-color: #3388cc;
+			text-shadow: none;
+			color: white;
+		}
+
 	</style>
 	<title>Testiohjelma</title>
 </head>
@@ -75,6 +95,24 @@
 
 			<input type="button" id="junatHelsinkiin" value="Hae junat">
 			<table id="junaTiedot"></table>
+
+			<ul id=#favoritesList data-role="listview" data-inset="true">
+				<li data-role="list-divider">Suosikit</li>
+				<li>
+					<a id="reitti1">1.</a>
+					<a id="reitti1lisaa" data-icon="plus"></a>
+				</li>
+				<li>
+					<a id="reitti2">2.</a>
+					<a id="reitti2lisaa" data-icon="plus"></a></a>
+				</li>
+				<li>
+					<a id="reitti3">3.</a>
+					<a id="reitti3lisaa" data-icon="plus"></a></a>
+				</li>
+			</ul>
+
+			<input type="button" id="poistaStorage" value="Poista suosikit">
 		</div> <!-- /content -->
 	
 	</div> <!-- /page -->
@@ -206,6 +244,8 @@
 			}
 		});  
 		
+
+
 		$(document).on("pagecreate", "#etusivu", function() {
 			console.log("Etusivu luotu");
 			console.log("Haetaan asemia");
@@ -214,16 +254,42 @@
 			lisaaTokaAsema();
 			// Haetaan junien tiedot painikkeesta
 			$("#junatHelsinkiin").on("click", function() {
-				console.log("Haetaan Helsinkiin meneviä junia!");
+				console.log("Haetaan meneviä junia!");
 				var junaMista = $("#ekaAsema").val();
 				var junaMinne = $("#tokaAsema").val();
 				var junaMistaNimi = $("#ekaAsema").attr("name");
-				var junaMinneNimi = $("#tokaAsema").attr("name");;
-				haeJunatHelsinkiin(junaMista, junaMinne, junaMistaNimi, junaMinneNimi);
+				var junaMinneNimi = $("#tokaAsema").attr("name");
+				haeJunat(junaMista, junaMinne, junaMistaNimi, junaMinneNimi);
 			});
 
-			
+			// Lisätään reitti localStorageen
+			var suosikkiLisaa = "1";
+			lisaaSuosikiksi(suosikkiLisaa);
+
+			var suosikkiHae = "1";
+			haeSuosikki(suosikkiHae);
+
 		});
+
+		function lisaaSuosikiksi(i) {
+			$("#reitti"+ i +"lisaa").on("click", function() {
+				console.log("Tallennetaan reitti localstorageen");
+				var junaMista = $("#ekaAsema").val();
+				var junaMinne = $("#tokaAsema").val();
+				var junaMistaNimi = $("#ekaAsema").attr("name");
+				var junaMinneNimi = $("#tokaAsema").attr("name");
+				localStorage.setItem("asemaMista"+ i, junaMista); 
+				localStorage.setItem("asemaMistaNimi" + i, junaMistaNimi);
+				localStorage.setItem("asemaMinne" + i, junaMinne);
+				localStorage.setItem("asemaMinneNimi" + i, junaMinneNimi);
+			});
+		}
+
+		function haeSuosikki(p) {
+			$("#reitti" + p).on("click", function() {
+				console.log("aha");
+			});
+		}
 
 
 		$(document).on("pagecreate", "#saaSivu", function() {
@@ -275,9 +341,7 @@
 				longMin: 24.283905,
 				longMax: 25.479355,
         	}
-
 			var asemaFilterLista = "";
-
 
 			$.ajax({
 				url: "https://rata.digitraffic.fi/api/v1/metadata/stations",
@@ -291,7 +355,6 @@
 					}
 				});
 				$(".asemaLista").html(asemaFilterLista);
-				
 			})
 			.fail(function() {
 				console.log("Virhe junien haussa");
@@ -299,7 +362,7 @@
 		};
 
 		// a = mistä, b = minne
-		function haeJunatHelsinkiin(a, b, c, d) {
+		function haeJunat(a, b, c, d) {
 			$.ajax({
 				url: "https://rata.digitraffic.fi/api/v1/live-trains/station/" + a + "/" + b + "?limit=15",
 				// Alternative:
@@ -331,7 +394,7 @@
 
 								var lahtoAikaFirst = new Date(k.scheduledTime);
 								var lahtoAikaFinal = lahtoAikaFirst.getHours() + ":" + lisaaNolla(lahtoAikaFirst.getMinutes());
-								var junaListaFinalAloitus = "<tr><td>" +  junaNimi + "</td><td>" + lahtoAsemaFinal + "</td><td>" + lahtoAikaFinal + "</td><td>" + kohdeAsemaFinaali + "</td></tr>";
+								var junaListaFinalAloitus = "<tr><td>" +  junaNimi + "</td><td>" + lahtoAsemaFinal + "</td><td>" + lahtoAikaFinal + "</td><td> " + kohdeAsemaFinaali + "</td></tr>";
 								
 								junaListaFinal += junaListaFinalAloitus + "<br>";
 								//return junaListaFinal;
@@ -344,10 +407,13 @@
 					}
 					junaLista += junaTiedot(mistaAsema);
 				});
+				var tauluOtsikot = "<tr><th>Juna</th><th>Lähtöasema</th><th>Lähtöaika</th><th>Kohdeasema</th></tr>";
+				junaLista = tauluOtsikot + junaLista;
 				$("#junaTiedot").html(junaLista);
 			})
 			.fail(function() {
 				console.log("Virhe junatietojen haussa");
+				$("#junaTiedot").html("Virhe junatietojen haussa, yritä uudelleen");
 			})
 		};
 
