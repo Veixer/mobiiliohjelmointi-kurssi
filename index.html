@@ -315,7 +315,7 @@
 					var junaNimi = b.commuterLineID;
 
 					function junaTiedot(lahtoAsema){
-						// Halutaan (JUNANIMI) + ASEMANIMI + LÄHTÖAIKA + (ACTUAL TIME) + (PERUTTU)
+						// Halutaan JUNANIMI + ASEMANIMI + LÄHTÖAIKA
 						var lahtoAsemanNimi = lahtoAsema;
 						var junaListaFinal = "";
 
@@ -331,10 +331,10 @@
 
 								var lahtoAikaFirst = new Date(k.scheduledTime);
 								var lahtoAikaFinal = lahtoAikaFirst.getHours() + ":" + lisaaNolla(lahtoAikaFirst.getMinutes());
-								var junaListaFinalAloitus = junaNimi + " " + lahtoAsemaFinal + " " + lahtoAikaFinal + " " + kohdeAsemaFinaali;
+								var junaListaFinalAloitus = "<tr><td>" +  junaNimi + "</td><td>" + lahtoAsemaFinal + "</td><td>" + lahtoAikaFinal + "</td><td>" + kohdeAsemaFinaali + "</td></tr>";
 								
 								junaListaFinal += junaListaFinalAloitus + "<br>";
-								return junaListaFinal;
+								//return junaListaFinal;
 							} else {
 								return "NOT FOUND";
 							}
@@ -343,8 +343,6 @@
 						return junaListaFinal;
 					}
 					junaLista += junaTiedot(mistaAsema);
-
-
 				});
 				$("#junaTiedot").html(junaLista);
 			})
