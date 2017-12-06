@@ -252,22 +252,14 @@
 			console.log("Täytetään suosikit");
 			console.log("Haetaan asemia");
 			
-			// Tarkastetaan localstorage ja täytetään jos löytyy jotain
 
 			taytaSuosikit();
-			
 			haeAsemat();
 			lisaaEkaAsema();
 			lisaaTokaAsema();
-			// Haetaan junien tiedot painikkeesta
-			$("#junatHaku").on("click", function() {
-				console.log("Haetaan meneviä junia!");
-				var junaMista = $("#ekaAsema").val();
-				var junaMinne = $("#tokaAsema").val();
-				var junaMistaNimi = $("#ekaAsema").attr("name");
-				var junaMinneNimi = $("#tokaAsema").attr("name");
-				haeJunat(junaMista, junaMinne, junaMistaNimi, junaMinneNimi);
-			});
+			junaHaku();
+
+			
 
 			$(".valitseReittiClass").on("click", function() {
 				var suosikkiHae = $(this).attr("id");
@@ -314,6 +306,17 @@
 			});
 		});
 		
+		function junaHaku() {
+			$("#junatHaku").on("click", function() {
+				console.log("Haetaan meneviä junia!");
+				var junaMista = $("#ekaAsema").val();
+				var junaMinne = $("#tokaAsema").val();
+				var junaMistaNimi = $("#ekaAsema").attr("name");
+				var junaMinneNimi = $("#tokaAsema").attr("name");
+				haeJunat(junaMista, junaMinne, junaMistaNimi, junaMinneNimi);
+			});
+		}
+
 		function lisaaEkaAsema() {
 			$(".ekaAsemaLista").on("click", "a", function(){
 				var valittuAsema = $(this).text();
@@ -366,6 +369,8 @@
 			if (junaMista != null && junaMinne != null && junaMistaNimi != null && junaMinneNimi != null){
 				$("#lahtoAsemaFinal").html(junaMistaNimi + "<input id='ekaAsema' type='hidden' name='"+ junaMistaNimi +"' value='"+ junaMista +"'>");
 				$("#kohdeAsemaFinal").html(junaMinneNimi + "<input id='tokaAsema' type='hidden'  name='"+ junaMinneNimi +"' value='"+ junaMinne +"'>");
+
+				haeJunat(junaMista, junaMinne, junaMistaNimi, junaMinneNimi);
 			}
 			
 		}
