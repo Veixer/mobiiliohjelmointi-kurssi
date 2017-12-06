@@ -99,16 +99,16 @@
 			<ul id=#favoritesList data-role="listview" data-inset="true">
 				<li data-role="list-divider">Suosikit</li>
 				<li>
-					<a id="reitti1">1.</a>
-					<a id="reitti1lisaa" data-icon="plus"></a>
+					<a id="reitti1" class="valitseReittiClass">1.</a>
+					<a id="reitti1lisaa" class="lisaaReittiClass" data-icon="plus"></a>
 				</li>
 				<li>
-					<a id="reitti2">2.</a>
-					<a id="reitti2lisaa" data-icon="plus"></a></a>
+					<a id="reitti2" class="valitseReittiClass">2.</a>
+					<a id="reitti2lisaa" class="lisaaReittiClass" data-icon="plus"></a></a>
 				</li>
 				<li>
-					<a id="reitti3">3.</a>
-					<a id="reitti3lisaa" data-icon="plus"></a></a>
+					<a id="reitti3" class="valitseReittiClass">3.</a>
+					<a id="reitti3lisaa" class="lisaaReittiClass" data-icon="plus"></a></a>
 				</li>
 			</ul>
 
@@ -262,18 +262,20 @@
 				haeJunat(junaMista, junaMinne, junaMistaNimi, junaMinneNimi);
 			});
 
-			// Lisätään reitti localStorageen
-			var suosikkiLisaa = "1";
-			lisaaSuosikiksi(suosikkiLisaa);
+			$(".valitseReittiClass").on("click", function() {
+				var suosikkiHae = $(this).attr("id");
+				haeSuosikki(suosikkiHae);
+			});
 
-			var suosikkiHae = "1";
-			haeSuosikki(suosikkiHae);
-
+			$(".lisaaReittiClass").on("click", function(){
+				var suosikkiLisaa = $(this).attr("id");
+				lisaaSuosikiksi(suosikkiLisaa);
+			});
 		});
 
 		function lisaaSuosikiksi(i) {
-			$("#reitti"+ i +"lisaa").on("click", function() {
-				console.log("Tallennetaan reitti localstorageen");
+			$("#"+ i).on("click", function() {
+				console.log("Tallennetaan reitti localstorageen: " + i);
 				var junaMista = $("#ekaAsema").val();
 				var junaMinne = $("#tokaAsema").val();
 				var junaMistaNimi = $("#ekaAsema").attr("name");
@@ -286,10 +288,11 @@
 		}
 
 		function haeSuosikki(p) {
-			$("#reitti" + p).on("click", function() {
-				console.log("aha");
+			$("#" + p).on("click", function() {
+				console.log("aha " + p);
 			});
 		}
+		
 
 
 		$(document).on("pagecreate", "#saaSivu", function() {
